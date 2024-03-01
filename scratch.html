@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Data Table</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<h1>API Data Table</h1>
+
+<table id="sortableTable">
+    <thead>
+    <tr>
+        <th onclick="sortTable(0)">Code</th>
+        <th onclick="sortTable(1)">Name</th>
+        <th onclick="sortTable(2)">PE Ratio</th>
+        <th onclick="sortTable(3)">Dividend Yield</th>
+        <th onclick="sortTable(4)">PB Ratio</th>
+    </tr>
+    </thead>
+    <tbody id="dataBody"></tbody>
+</table>
+
+<script>
+    // 使用fetch获取API数据
+    fetch('http://localhost:8080/getExternalAPI')
+        .then(response => response.json())
+        .then(data => {
+            // 将数据填充到表格中
+            const tableBody = document.getElementById('dataBody');
+
+            data.forEach(stock => {
+                const row = tableBody.insertRow();
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+                const cell3 = row.insertCell(2);
+                const cell4 = row.insertCell(3);
+                const cell5 = row.insertCell(4);
+
+                cell1.textContent = stock.Code;
+                cell2.textContent = stock.Name;
+                cell3.textContent = stock.PEratio;
+                cell4.textContent = stock.DividendYield;
+                cell5.textContent = stock.PBratio;
+            });
+        })
+        .catch(error => console.error('Error fetching API data:', error));
+
+    function sortTable(columnIndex) {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("sortableTable");
+        switching = true;
+        /* Make a loop that will continue until no switching has been done: */
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            /* Loop through all table rows (except the first, which contains table headers): */
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                /* Get the two elements you want to compare, one from current row and one from the next: */
+                x = rows[i].getElementsByTagName("td")[columnIndex];
+                y = rows[i + 1].getElementsByTagName("td")[columnIndex];
+                /* Check if the two rows should switch place, based on the direction, asc or desc: */
+                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+            if (shouldSwitch) {
+                /* If a switch has been marked, make the switch and mark that a switch has been done: */
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
