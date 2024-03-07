@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Data Table</title>
+    <title>股票總覽</title>
     <style>
         table {
             border-collapse: collapse;
@@ -16,11 +16,11 @@
             border: 1px solid #dddddd;
             text-align: left;
             padding: 8px;
+            cursor: pointer; /* 添加鼠标指针样式，表示可点击 */
         }
 
         th {
             background-color: #f2f2f2;
-            cursor: pointer;
         }
     </style>
 </head>
@@ -74,8 +74,40 @@
         rows.forEach(row => tableBody.appendChild(row));
     }
 
+    // 处理表格行点击事件
+    function handleRowClick(stock) {
+        // 构造请求体数据
+        const requestData = {
+            code: stock.Code,
+            name: stock.Name
+        };
+
+        // 发送后端API请求，使用POST方法
+        fetch('http://localhost:8080/test/api/stockdata', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // 指定请求体的内容类型为 JSON
+            },
+            body: JSON.stringify(requestData) // 将请求体数据转为 JSON 字符串
+        })
+            .then(response => response.json())
+            .then(data => {
+                // 处理后端API的响应
+                console.log('API Response:', data);
+
+                localStorage.setItem('apiResponse', JSON.stringify(data));
+
+                window.location.href = 'templates/stockdata.html'; //跳轉到個股資訊頁面
+            })
+
+            .catch(error => {
+                console.error('Error calling the API:', error);
+            });
+    }
+
+
     // 使用fetch获取API数据
-    fetch('http://localhost:8080/getExternalAPI')
+    fetch('http://localhost:8080/test/api/stockimformation')
         .then(response => response.json())
         .then(data => {
             // 将数据填充到表格中
@@ -104,6 +136,9 @@
                 }
                 // cell4.textContent = parseFloat(stock.DividendYield);
                 cell5.textContent = parseFloat(stock.PBratio);
+
+                // 将点击事件绑定到行
+                row.addEventListener('click', () => handleRowClick(stock));
             });
         })
         .catch(error => console.error('Error fetching API data:', error));

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Table</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<h2>股票詳細資料</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>股票代號</th>
+        <th>公司簡稱</th>
+        <th>成交價</th>
+        <th>成交量</th>
+        <th>昨收價</th>
+        <th>最低價</th>
+        <th>最高價</th>
+        <th>累積成交量</th>
+        <th>開盤價</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td id="股票代號">
+        <td id="公司簡稱">
+        <td id="成交價">
+        <td id="成交量">
+        <td id="昨收價">
+        <td id="最低價">
+        <td id="最高價">
+        <td id="累積成交量">
+        <td id="開盤價">
+
+    </tr>
+
+    <!-- Add more rows as needed -->
+    </tbody>
+</table>
+<script>
+    // 从本地存储中获取API响应值
+    const apiResponseString = localStorage.getItem('apiResponse');
+
+    // 从 Local Storage 中获取变量
+    // const var1 = localStorage.getItem('var1');
+    // const var2 = localStorage.getItem('var2');
+    // const var3 = localStorage.getItem('var3');
+
+    // 将变量插入到表格中
+    const apiResponse = JSON.parse(apiResponseString);
+    document.getElementById('股票代號').textContent = apiResponse["股票代號"];
+    document.getElementById('公司簡稱').textContent = apiResponse["公司簡稱"];
+    document.getElementById('成交價').textContent = apiResponse["成交價"];
+    document.getElementById('成交量').textContent = apiResponse["成交量"];
+    document.getElementById('昨收價').textContent = apiResponse["昨收價"];
+    document.getElementById('最低價').textContent = apiResponse["最低價"];
+    document.getElementById('最高價').textContent = apiResponse["最高價"];
+    document.getElementById('累積成交量').textContent = apiResponse["累積成交量"];
+    document.getElementById('開盤價').textContent = apiResponse["開盤價"];
+
+    // if (apiResponseString) {
+    //     const apiResponse = JSON.parse(apiResponseString);
+        // document.getElementById('apiResponse').innerText = JSON.stringify(apiResponse, null, 2);
+        // document.getElementById('apiResponse').innerText = JSON.stringify(apiResponse["公司簡稱"], null, 2);
+    // }
+</script>
+</body>
+
+</html>
