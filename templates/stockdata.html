@@ -54,19 +54,13 @@
 
     </tr>
 
-    <!-- Add more rows as needed -->
     </tbody>
 </table>
 <script>
-    // 从本地存储中获取API响应值
+    // 從本地存儲中獲取API響應值
     const apiResponseString = localStorage.getItem('apiResponse');
 
-    // 从 Local Storage 中获取变量
-    // const var1 = localStorage.getItem('var1');
-    // const var2 = localStorage.getItem('var2');
-    // const var3 = localStorage.getItem('var3');
-
-    // 将变量插入到表格中
+    // 將變量插入到表格中
     const apiResponse = JSON.parse(apiResponseString);
     document.getElementById('股票代號').textContent = apiResponse["股票代號"];
     document.getElementById('公司簡稱').textContent = apiResponse["公司簡稱"];

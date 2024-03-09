@@ -74,14 +74,14 @@ func (s *StockDetail) StockImformation(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	// 解析API的JSON响应
+	// 解析API的JSON響應
 	var stocks []StockImformation
 	if err := json.NewDecoder(resp.Body).Decode(&stocks); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse external API response"})
 		return
 	}
 
-	// 将API的结果传递到前端
+	// 將API的結果傳遞到前端
 	c.JSON(http.StatusOK, stocks)
 }
 
@@ -92,7 +92,7 @@ func (s *StockDetail) StockData(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// 处理 requestData，这里可以根据需要进行业务逻辑处理
+	// 處理 requestData
 	apiURL := "https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_" + requestData.Code + ".tw"
 
 	resp, err := http.Get(apiURL)
@@ -102,16 +102,14 @@ func (s *StockDetail) StockData(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	// 解析API的JSON响应
+	// 解析API的JSON響應
 	var apiResponse APIResponse
 
-	// 仅解码 JSON 数据中的 msgArray 字段
+	// 僅解碼 JSON 數據中的 msgArray 字段
 	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse external API response"})
 		return
 	}
-
-	// 提取 msgArray 中的 tv 字段值
 
 	ValuesMap := make(map[string]string)
 	for _, item := range apiResponse.MsgArray {
@@ -126,17 +124,9 @@ func (s *StockDetail) StockData(c *gin.Context) {
 		ValuesMap["昨收價"] = item.Y
 	}
 
-	// 处理 tvValues 中的数据
 	c.JSON(http.StatusOK, ValuesMap)
 
-	// 使用 HTML 渲染方法渲染页面
-	//c.HTML(http.StatusOK, "../../templates/stockdata.html", gin.H{
-	//	"StockData": ValuesMap,
-	//})
-	//// 将API的结果传递到前端
-	//c.JSON(http.StatusOK, tv)
-
-	// 返回响应
+	// 返回響應
 	//c.JSON(http.StatusOK, gin.H{"message": "POST request received", "data": requestData})
 
 	//fmt.Printf("%+v\n", tv)

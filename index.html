@@ -16,7 +16,7 @@
             border: 1px solid #dddddd;
             text-align: left;
             padding: 8px;
-            cursor: pointer; /* 添加鼠标指针样式，表示可点击 */
+            cursor: pointer;
         }
 
         th {
@@ -26,7 +26,7 @@
 </head>
 <body>
 
-<h1>API Data Table</h1>
+<h1>股票總覽</h1>
 
 <table id="sortableTable">
     <thead>
@@ -50,7 +50,7 @@
         const tableBody = document.getElementById("dataBody");
         const rows = Array.from(tableBody.rows);
 
-        // Toggle ascending/descending order if clicking the same column
+
         if (currentSortColumn === columnIndex) {
             ascending = !ascending;
         } else {
@@ -69,12 +69,12 @@
             }
         });
 
-        // Reorder the rows in the table body
+
         tableBody.innerHTML = "";
         rows.forEach(row => tableBody.appendChild(row));
     }
 
-    // 处理表格行点击事件
+    // 處理表格行點擊事件
     function handleRowClick(stock) {
         // 构造请求体数据
         const requestData = {
@@ -82,17 +82,17 @@
             name: stock.Name
         };
 
-        // 发送后端API请求，使用POST方法
+        // 發送後端API請求，使用POST方法
         fetch('http://localhost:8080/test/api/stockdata', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json' // 指定请求体的内容类型为 JSON
+                'Content-Type': 'application/json' // 指定請球體的内容類型為 JSON
             },
-            body: JSON.stringify(requestData) // 将请求体数据转为 JSON 字符串
+            body: JSON.stringify(requestData) // 將請求體數據轉為 JSON 字符串
         })
             .then(response => response.json())
             .then(data => {
-                // 处理后端API的响应
+                // 處理後端API的響應
                 console.log('API Response:', data);
 
                 localStorage.setItem('apiResponse', JSON.stringify(data));
@@ -106,11 +106,11 @@
     }
 
 
-    // 使用fetch获取API数据
+    // 使用fetch獲取API數據
     fetch('http://localhost:8080/test/api/stockimformation')
         .then(response => response.json())
         .then(data => {
-            // 将数据填充到表格中
+            // 將數據填充到表格中
             const tableBody = document.getElementById('dataBody');
 
             data.forEach(stock => {
@@ -137,7 +137,7 @@
                 // cell4.textContent = parseFloat(stock.DividendYield);
                 cell5.textContent = parseFloat(stock.PBratio);
 
-                // 将点击事件绑定到行
+                // 將點擊事件綁定到行
                 row.addEventListener('click', () => handleRowClick(stock));
             });
         })
