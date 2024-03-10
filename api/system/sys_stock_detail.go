@@ -2,8 +2,11 @@ package system
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 type StockDetail struct{}
@@ -17,8 +20,9 @@ type StockImformation struct {
 }
 
 type StockCode struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
+	Code    string `json:"code"`
+	Name    string `json:"name"`
+	PEratio string `json:"peratio"`
 }
 
 type MsgArrayItem struct {
@@ -63,6 +67,18 @@ type MsgArrayItem struct {
 
 type APIResponse struct {
 	MsgArray []MsgArrayItem `json:"msgArray"`
+}
+
+type Epsdata struct {
+	Data []FinancialEntry `json:"data"`
+}
+
+type FinancialEntry struct {
+	Date       string  `json:"date"`
+	StockID    string  `json:"stock_id"`
+	Type       string  `json:"type"`
+	Value      float64 `json:"value"`
+	OriginName string  `json:"origin_name"`
 }
 
 func (s *StockDetail) StockImformation(c *gin.Context) {
@@ -111,6 +127,21 @@ func (s *StockDetail) StockData(c *gin.Context) {
 		return
 	}
 
+	eps := StockEPS(requestData.Code)
+	//eps_str := strconv.FormatFloat(eps, 'f', -1, 64)
+	floateps, err := strconv.ParseFloat(eps, 64)
+	if err != nil {
+		fmt.Println("轉換失敗:", err)
+		return
+	}
+	floatPEratio, err := strconv.ParseFloat(requestData.PEratio, 64)
+	if err != nil {
+		fmt.Println("轉換失敗:", err)
+		return
+	}
+	price := floateps * floatPEratio
+	eps_str := strconv.FormatFloat(price, 'f', -1, 64)
+
 	ValuesMap := make(map[string]string)
 	for _, item := range apiResponse.MsgArray {
 		ValuesMap["股票代號"] = item.C
@@ -122,6 +153,8 @@ func (s *StockDetail) StockData(c *gin.Context) {
 		ValuesMap["最高價"] = item.H
 		ValuesMap["最低價"] = item.L
 		ValuesMap["昨收價"] = item.Y
+		ValuesMap["EPS"] = eps
+		ValuesMap["合理價"] = eps_str
 	}
 
 	c.JSON(http.StatusOK, ValuesMap)
@@ -131,4 +164,39 @@ func (s *StockDetail) StockData(c *gin.Context) {
 
 	//fmt.Printf("%+v\n", tv)
 
+}
+
+func StockEPS(value string) string {
+	now := time.Now()
+	oneYearAgo := now.AddDate(-1, 0, 0)
+
+	dataset := "TaiwanStockFinancialStatements"
+	data_id := value
+	start_date := oneYearAgo.Format("2006-01-02")
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlIjoiMjAyNC0wMy0wOSAyMTo0MTowNyIsInVzZXJfaWQiOiJ3aWxseTAwNTUiLCJpcCI6IjEyMi4xMTcuMTgwLjE1OSJ9.HkU9BX9aUbyQ66zPPzgrkp0wz98g9HwymeUOYPUYPi4"
+
+	apiURL := "https://api.finmindtrade.com/api/v4/data?dataset=" + dataset + "&data_id=" + data_id + "&start_date=" + start_date + "&token=" + token + ""
+	response, err := http.Get(apiURL)
+	if err != nil {
+		return ""
+	}
+	defer response.Body.Close()
+
+	var epsResponse Epsdata
+	err = json.NewDecoder(response.Body).Decode(&epsResponse)
+	if err != nil {
+		return ""
+	}
+
+	//return epsResponse.Data, nil
+	var eps float64
+	for _, entry := range epsResponse.Data {
+		if entry.Type == "EPS" {
+			eps += entry.Value
+			//filteredData = append(filteredData, entry)
+		}
+	}
+	eps_str := fmt.Sprintf("%.3f", eps)
+
+	return eps_str
 }

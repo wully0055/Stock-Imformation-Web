@@ -79,14 +79,15 @@
         // 构造请求体数据
         const requestData = {
             code: stock.Code,
-            name: stock.Name
+            name: stock.Name,
+            peratio: stock.PEratio
         };
 
         // 發送後端API請求，使用POST方法
         fetch('http://localhost:8080/test/api/stockdata', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json' // 指定請球體的内容類型為 JSON
+                'Content-Type': 'application/json' // 指定請求體内容類型為 JSON
             },
             body: JSON.stringify(requestData) // 將請求體數據轉為 JSON 字符串
         })

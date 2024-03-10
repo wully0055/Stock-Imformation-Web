@@ -38,6 +38,8 @@
         <th>最高價</th>
         <th>累積成交量</th>
         <th>開盤價</th>
+        <th>EPS</th>
+        <th>合理價</th>
     </tr>
     </thead>
     <tbody>
@@ -51,6 +53,8 @@
         <td id="最高價">
         <td id="累積成交量">
         <td id="開盤價">
+        <td id="EPS">
+        <td id="合理價">
 
     </tr>
 
@@ -71,6 +75,8 @@
     document.getElementById('最高價').textContent = apiResponse["最高價"];
     document.getElementById('累積成交量').textContent = apiResponse["累積成交量"];
     document.getElementById('開盤價').textContent = apiResponse["開盤價"];
+    document.getElementById('EPS').textContent = apiResponse["EPS"];
+    document.getElementById('合理價').textContent = apiResponse["合理價"];
 
     // if (apiResponseString) {
     //     const apiResponse = JSON.parse(apiResponseString);
