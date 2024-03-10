@@ -140,7 +140,8 @@ func (s *StockDetail) StockData(c *gin.Context) {
 		return
 	}
 	price := floateps * floatPEratio
-	eps_str := strconv.FormatFloat(price, 'f', -1, 64)
+	eps_str := fmt.Sprintf("%.3f", price)
+	//reasonable := strconv.FormatFloat(eps_str, 'f', -1, 64)
 
 	ValuesMap := make(map[string]string)
 	for _, item := range apiResponse.MsgArray {
@@ -168,7 +169,7 @@ func (s *StockDetail) StockData(c *gin.Context) {
 
 func StockEPS(value string) string {
 	now := time.Now()
-	oneYearAgo := now.AddDate(-1, 0, 0)
+	oneYearAgo := now.AddDate(-1, -6, 0)
 
 	dataset := "TaiwanStockFinancialStatements"
 	data_id := value
@@ -190,9 +191,19 @@ func StockEPS(value string) string {
 
 	//return epsResponse.Data, nil
 	var eps float64
-	for _, entry := range epsResponse.Data {
-		if entry.Type == "EPS" {
+	count := 0
+	//for _, entry := range epsResponse.Data {
+	//	if entry.Type == "EPS" {
+	//		eps += entry.Value
+	//		//filteredData = append(filteredData, entry)
+	//	}
+	//}
+	//改為反向迴圈, 取最近 ４ 筆 EPS
+	for i := len(epsResponse.Data) - 1; i >= 0; i-- {
+		entry := epsResponse.Data[i]
+		if entry.Type == "EPS" && count < 4 {
 			eps += entry.Value
+			count++
 			//filteredData = append(filteredData, entry)
 		}
 	}
