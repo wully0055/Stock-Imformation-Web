@@ -87,24 +87,41 @@
         fetch('http://localhost:8080/test/api/stockdata', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json' // 指定請求體内容類型為 JSON
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(requestData) // 將請求體數據轉為 JSON 字符串
+            body: JSON.stringify(requestData)
         })
             .then(response => response.json())
             .then(data => {
-                // 處理後端API的響應
-                console.log('API Response:', data);
-
-                localStorage.setItem('apiResponse', JSON.stringify(data));
-
-                window.location.href = 'templates/stockdata.html'; //跳轉到個股資訊頁面
+                if (Object.keys(data).length === 0) {  // 检查是否为空对象
+                    fetch('http://localhost:8080/test/api/stockdata2', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestData)
+                    })
+                        .then(response => response.json())
+                        .then(data2 => {
+                            console.log('API Response:', data2);
+                            localStorage.setItem('apiResponse', JSON.stringify(data2));
+                            window.location.href = 'templates/stockdata.html';
+                        })
+                        .catch(error => {
+                            console.error('Error calling the second API:', error);
+                        });
+                } else {
+                    console.log('API Response:', data);
+                    localStorage.setItem('apiResponse', JSON.stringify(data));
+                    window.location.href = 'templates/stockdata.html';
+                }
             })
-
             .catch(error => {
-                console.error('Error calling the API:', error);
+                console.error('Error calling the first API:', error);
             });
+
     }
+
 
 
     // 使用fetch獲取API數據

@@ -215,10 +215,75 @@ func (s *StockDetail) StockData(c *gin.Context) {
 	c.JSON(http.StatusOK, ValuesMap)
 
 	// 返回響應
-	//c.JSON(http.StatusOK, gin.H{"message": "POST request received", "data": requestData})
+}
 
-	//fmt.Printf("%+v\n", tv)
+func (s *StockDetail) StockData2(c *gin.Context) {
 
+	var requestData StockCode
+	if err := c.BindJSON(&requestData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	// 處理 requestData
+	apiURL2 := "https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=otc_" + requestData.Code + ".tw"
+
+	resp, err := http.Get(apiURL2)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch external API"})
+		return
+	}
+	defer resp.Body.Close()
+
+	// 解析API的JSON響應
+	var apiResponse APIResponse
+
+	// 僅解碼 JSON 數據中的 msgArray 字段
+	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse external API response"})
+		return
+	}
+
+	eps := StockEPS(requestData.Code)
+
+	floateps, err := strconv.ParseFloat(eps, 64)
+	if err != nil {
+		fmt.Println("eps轉換float失敗:", err)
+		return
+	}
+	//若沒有本益比資料，本益比設為 0
+	var stockPEratio string
+	if requestData.PEratio != "" {
+		stockPEratio = requestData.PEratio
+	} else {
+		stockPEratio = "0.0"
+	}
+
+	floatPEratio, err := strconv.ParseFloat(stockPEratio, 64)
+	if err != nil {
+		fmt.Println("本益比轉換float失敗:", err)
+		return
+	}
+	price := floateps * floatPEratio
+	eps_str := fmt.Sprintf("%.3f", price)
+
+	ValuesMap := make(map[string]string)
+	for _, item := range apiResponse.MsgArray {
+		ValuesMap["股票代號"] = item.C
+		ValuesMap["公司簡稱"] = item.N
+		ValuesMap["成交價"] = item.Z
+		ValuesMap["成交量"] = item.Tv
+		ValuesMap["累積成交量"] = item.V
+		ValuesMap["開盤價"] = item.O
+		ValuesMap["最高價"] = item.H
+		ValuesMap["最低價"] = item.L
+		ValuesMap["昨收價"] = item.Y
+		ValuesMap["EPS"] = eps
+		ValuesMap["合理價"] = eps_str
+	}
+
+	c.JSON(http.StatusOK, ValuesMap)
+
+	// 返回響應
 }
 
 func StockEPS(value string) string {
