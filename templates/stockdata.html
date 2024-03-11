@@ -76,7 +76,12 @@
     document.getElementById('累積成交量').textContent = apiResponse["累積成交量"];
     document.getElementById('開盤價').textContent = apiResponse["開盤價"];
     document.getElementById('EPS').textContent = apiResponse["EPS"];
-    document.getElementById('合理價').textContent = apiResponse["合理價"];
+    if(apiResponse["合理價"] === "0.000" || apiResponse["合理價"] === "-0.000"){
+        document.getElementById('合理價').textContent = "無法計算";
+    }else{
+        document.getElementById('合理價').textContent = apiResponse["合理價"];
+    }
+
 
     // if (apiResponseString) {
     //     const apiResponse = JSON.parse(apiResponseString);

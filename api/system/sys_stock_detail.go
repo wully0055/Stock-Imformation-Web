@@ -19,6 +19,16 @@ type StockImformation struct {
 	PBratio       string `json:"PBratio"`
 }
 
+type StockImformation2 struct {
+	//Date                  string `json:"Date"`
+	Code          string `json:"SecuritiesCompanyCode"`
+	Name          string `json:"CompanyName"`
+	PEratio       string `json:"PriceEarningRatio"`
+	DividendYield string `json:"YieldRatio"`
+	PBratio       string `json:"PriceBookRatio"`
+	//DividendPerShare      string `json:"DividendPerShare"`
+}
+
 type StockCode struct {
 	Code    string `json:"code"`
 	Name    string `json:"name"`
@@ -82,6 +92,7 @@ type FinancialEntry struct {
 }
 
 func (s *StockDetail) StockImformation(c *gin.Context) {
+	//上市資料
 	apiURL := "https://openapi.twse.com.tw/v1/exchangeReport/BWIBBU_ALL"
 	resp, err := http.Get(apiURL)
 	if err != nil {
@@ -96,9 +107,45 @@ func (s *StockDetail) StockImformation(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse external API response"})
 		return
 	}
+	//上櫃資料
+	apiURL2 := "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_peratio_analysis"
+	resp2, err := http.Get(apiURL2)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch external API"})
+		return
+	}
+	defer resp2.Body.Close()
+
+	// 解析API的JSON響應
+	var stocks2 []StockImformation2
+	if err := json.NewDecoder(resp2.Body).Decode(&stocks2); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse external API response"})
+		return
+	}
+
+	merge_data := mergeStructs(stocks, stocks2)
 
 	// 將API的結果傳遞到前端
-	c.JSON(http.StatusOK, stocks)
+	c.JSON(http.StatusOK, merge_data)
+}
+
+// 合併上市櫃股票資料
+func mergeStructs(data1 []StockImformation, data2 []StockImformation2) []StockImformation {
+	var mergedData []StockImformation
+	mergedData = append(mergedData, data1...)
+
+	for _, entry := range data2 {
+
+		newdata1 := StockImformation{
+			Code:          entry.Code,
+			Name:          entry.Name,
+			PEratio:       entry.PEratio,
+			DividendYield: entry.DividendYield,
+			PBratio:       entry.PBratio,
+		}
+		mergedData = append(mergedData, newdata1)
+	}
+	return mergedData
 }
 
 func (s *StockDetail) StockData(c *gin.Context) {
@@ -128,20 +175,27 @@ func (s *StockDetail) StockData(c *gin.Context) {
 	}
 
 	eps := StockEPS(requestData.Code)
-	//eps_str := strconv.FormatFloat(eps, 'f', -1, 64)
+
 	floateps, err := strconv.ParseFloat(eps, 64)
 	if err != nil {
-		fmt.Println("轉換失敗:", err)
+		fmt.Println("eps轉換float失敗:", err)
 		return
 	}
-	floatPEratio, err := strconv.ParseFloat(requestData.PEratio, 64)
+	//若沒有本益比資料，本益比設為 0
+	var stockPEratio string
+	if requestData.PEratio != "" {
+		stockPEratio = requestData.PEratio
+	} else {
+		stockPEratio = "0.0"
+	}
+
+	floatPEratio, err := strconv.ParseFloat(stockPEratio, 64)
 	if err != nil {
-		fmt.Println("轉換失敗:", err)
+		fmt.Println("本益比轉換float失敗:", err)
 		return
 	}
 	price := floateps * floatPEratio
 	eps_str := fmt.Sprintf("%.3f", price)
-	//reasonable := strconv.FormatFloat(eps_str, 'f', -1, 64)
 
 	ValuesMap := make(map[string]string)
 	for _, item := range apiResponse.MsgArray {

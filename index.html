@@ -124,13 +124,13 @@
 
                 cell1.textContent = parseInt(stock.Code, 10);
                 cell2.textContent = stock.Name;
-                if(stock.PEratio === ""){
+                if(stock.PEratio === "" || stock.PEratio === "N/A"){
                     cell3.textContent = 0;
                 }else{
                     cell3.textContent = parseFloat(stock.PEratio);
                 }
 
-                if(stock.DividendYield === ""){
+                if(stock.DividendYield === "" || stock.DividendYield === "N/A"){
                     cell4.textContent = 0;
                 }else{
                     cell4.textContent = parseFloat(stock.DividendYield);
