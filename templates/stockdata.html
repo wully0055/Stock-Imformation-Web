@@ -20,6 +20,21 @@
         th {
             background-color: #f2f2f2;
         }
+
+        .green {
+            color: green;
+        }
+
+        .red {
+            color: red;
+        }
+
+        .black {
+            color: black;
+        }
+        .bold {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -38,7 +53,7 @@
         <th>最高價</th>
         <th>累積成交量</th>
         <th>開盤價</th>
-        <th>EPS</th>
+        <th>近四次EPS總和</th>
         <th>合理價</th>
     </tr>
     </thead>
@@ -76,18 +91,28 @@
     document.getElementById('累積成交量').textContent = apiResponse["累積成交量"];
     document.getElementById('開盤價').textContent = apiResponse["開盤價"];
     document.getElementById('EPS').textContent = apiResponse["EPS"];
-    if(apiResponse["合理價"] === "0.000" || apiResponse["合理價"] === "-0.000"){
-        document.getElementById('合理價').textContent = "無法計算";
-    }else{
-        document.getElementById('合理價').textContent = apiResponse["合理價"];
+
+    const Element = document.getElementById('合理價');
+    const Value = parseFloat(apiResponse["合理價"]);
+
+    if (apiResponse["合理價"] === "0.000" || apiResponse["合理價"] === "-0.000") {
+        Element.textContent = "無法計算";
+        Element.classList.add('black');
+    } else {
+        Element.textContent = apiResponse["合理價"];
+        Element.classList.add('bold');
+        if (Value < parseFloat(apiResponse["成交價"])) {
+            Element.classList.add('red');
+        } else {
+            Element.classList.add('green');
+        }
     }
-
-
-    // if (apiResponseString) {
-    //     const apiResponse = JSON.parse(apiResponseString);
-        // document.getElementById('apiResponse').innerText = JSON.stringify(apiResponse, null, 2);
-        // document.getElementById('apiResponse').innerText = JSON.stringify(apiResponse["公司簡稱"], null, 2);
+    // if(apiResponse["合理價"] === "0.000" || apiResponse["合理價"] === "-0.000"){
+    //     document.getElementById('合理價').textContent = "無法計算";
+    // }else{
+    //     document.getElementById('合理價').textContent = apiResponse["合理價"];
     // }
+
 </script>
 </body>
 

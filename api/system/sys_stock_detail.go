@@ -183,10 +183,9 @@ func (s *StockDetail) StockData(c *gin.Context) {
 	}
 	//若沒有本益比資料，本益比設為 0
 	var stockPEratio string
-	if requestData.PEratio != "" {
-		stockPEratio = requestData.PEratio
-	} else {
-		stockPEratio = "0.0"
+	stockPEratio = requestData.PEratio
+	if stockPEratio == "" || stockPEratio == "N/A" {
+		stockPEratio = "0"
 	}
 
 	floatPEratio, err := strconv.ParseFloat(stockPEratio, 64)
@@ -252,10 +251,9 @@ func (s *StockDetail) StockData2(c *gin.Context) {
 	}
 	//若沒有本益比資料，本益比設為 0
 	var stockPEratio string
-	if requestData.PEratio != "" {
-		stockPEratio = requestData.PEratio
-	} else {
-		stockPEratio = "0.0"
+	stockPEratio = requestData.PEratio
+	if stockPEratio == "" || stockPEratio == "N/A" {
+		stockPEratio = "0"
 	}
 
 	floatPEratio, err := strconv.ParseFloat(stockPEratio, 64)
