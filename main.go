@@ -1,8 +1,6 @@
 package main
 
-import (
-	"gland_test/initialize"
-)
+import "gland_test/initialize"
 
 func main() {
 
@@ -31,6 +29,13 @@ func main() {
 	//r.Run(":8080")
 
 	initialize.Routers()
-	initialize.Gorm()
+	//global.SKW_DB = initialize.Gorm()
+	//
+	//if global.SKW_DB != nil {
+	//	initialize.RegisterTables()
+	//	// 程式结束前關閉資料庫連接
+	//	db, _ := global.SKW_DB.DB()
+	//	defer db.Close()
+	//}
 
 }

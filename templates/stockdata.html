@@ -16,22 +16,40 @@
             text-align: left;
             padding: 8px;
         }
+        td:nth-child(-n+2) {
+            text-align: left;
+        }
+        td:not(:nth-child(-n+2)) {
+            text-align: right;
+        }
 
         th {
             background-color: #f2f2f2;
         }
 
+        .red {
+            color: red;
+        }
         .green {
             color: green;
         }
 
-        .red {
-            color: red;
+        .background_red {
+            background-color: red;
+        }
+
+        .background_green {
+            background-color: green;
+        }
+
+        .white {
+            color: white;
         }
 
         .black {
             color: black;
         }
+
         .bold {
             font-weight: bold;
         }
@@ -47,13 +65,14 @@
         <th>股票代號</th>
         <th>公司簡稱</th>
         <th>成交價</th>
-        <th>成交量</th>
-        <th>昨收價</th>
+        <th>漲跌幅</th>
         <th>最低價</th>
         <th>最高價</th>
+        <th>昨收價</th>
+        <th>成交量</th>
         <th>累積成交量</th>
         <th>開盤價</th>
-        <th>近四次EPS總和</th>
+        <th>EPS(年)</th>
         <th>合理價</th>
     </tr>
     </thead>
@@ -62,10 +81,11 @@
         <td id="股票代號">
         <td id="公司簡稱">
         <td id="成交價">
-        <td id="成交量">
-        <td id="昨收價">
+        <td id="漲跌幅">
         <td id="最低價">
         <td id="最高價">
+        <td id="昨收價">
+        <td id="成交量">
         <td id="累積成交量">
         <td id="開盤價">
         <td id="EPS">
@@ -81,9 +101,11 @@
 
     // 將變量插入到表格中
     const apiResponse = JSON.parse(apiResponseString);
+    const changePercentage = ((parseFloat(apiResponse["成交價"]) - parseFloat(apiResponse["昨收價"])) / parseFloat(apiResponse["昨收價"])) * 100;
     document.getElementById('股票代號').textContent = apiResponse["股票代號"];
     document.getElementById('公司簡稱').textContent = apiResponse["公司簡稱"];
     document.getElementById('成交價').textContent = apiResponse["成交價"];
+    document.getElementById('漲跌幅').textContent = changePercentage.toFixed(2)+"%";
     document.getElementById('成交量').textContent = apiResponse["成交量"];
     document.getElementById('昨收價').textContent = apiResponse["昨收價"];
     document.getElementById('最低價').textContent = apiResponse["最低價"];
@@ -92,26 +114,68 @@
     document.getElementById('開盤價').textContent = apiResponse["開盤價"];
     document.getElementById('EPS').textContent = apiResponse["EPS"];
 
-    const Element = document.getElementById('合理價');
-    const Value = parseFloat(apiResponse["合理價"]);
+    const Reasonable = document.getElementById('合理價');
+    const EndPrice = document.getElementById('成交價');
+    const MinPrice = document.getElementById('最低價');
+    const MaxPrice = document.getElementById('最高價');
+    const StartPrice = document.getElementById('開盤價');
+    const Percentage = document.getElementById('漲跌幅');
+    const ReasonableValue = parseFloat(apiResponse["合理價"]);
 
     if (apiResponse["合理價"] === "0.000" || apiResponse["合理價"] === "-0.000") {
-        Element.textContent = "無法計算";
-        Element.classList.add('black');
+        Reasonable.textContent = "無法計算";
+        Reasonable.classList.add('black');
     } else {
-        Element.textContent = apiResponse["合理價"];
-        Element.classList.add('bold');
-        if (Value < parseFloat(apiResponse["成交價"])) {
-            Element.classList.add('red');
+        Reasonable.textContent = apiResponse["合理價"];
+        Reasonable.classList.add('bold');
+        if (ReasonableValue > parseFloat(apiResponse["成交價"])) {
+            Reasonable.classList.add('red');
         } else {
-            Element.classList.add('green');
+            Reasonable.classList.add('green');
         }
     }
-    // if(apiResponse["合理價"] === "0.000" || apiResponse["合理價"] === "-0.000"){
-    //     document.getElementById('合理價').textContent = "無法計算";
-    // }else{
-    //     document.getElementById('合理價').textContent = apiResponse["合理價"];
-    // }
+    EndPrice.classList.add('bold');
+    if(changePercentage >= 10.00){
+        EndPrice.classList.add('background_red');
+        EndPrice.classList.add('white');
+    }else if(changePercentage <= -10.00){
+        EndPrice.classList.add('background_green');
+        EndPrice.classList.add('white');
+    }else{
+        if (parseFloat(apiResponse["成交價"]) > parseFloat(apiResponse["昨收價"])) {
+            EndPrice.classList.add('red');
+        } else {
+            EndPrice.classList.add('green');
+        }
+    }
+
+    MaxPrice.classList.add('bold');
+    if (parseFloat(apiResponse["最高價"]) > parseFloat(apiResponse["昨收價"])) {
+        MaxPrice.classList.add('red');
+    } else {
+        MaxPrice.classList.add('green');
+    }
+    MinPrice.classList.add('bold');
+    if (parseFloat(apiResponse["最低價"]) > parseFloat(apiResponse["昨收價"])) {
+        MinPrice.classList.add('red');
+    } else {
+        MinPrice.classList.add('green');
+    }
+    StartPrice.classList.add('bold');
+    if (parseFloat(apiResponse["開盤價"]) > parseFloat(apiResponse["昨收價"])) {
+        StartPrice.classList.add('red');
+    } else {
+        StartPrice.classList.add('green');
+    }
+    Percentage.classList.add('bold');
+    if (changePercentage > 0) {
+        Percentage.classList.add('red');
+    } else {
+        Percentage.classList.add('green');
+    }
+
+
+
 
 </script>
 </body>
