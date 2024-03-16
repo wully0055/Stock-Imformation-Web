@@ -148,6 +148,7 @@ func mergeStructs(data1 []StockImformation, data2 []StockImformation2) []StockIm
 	return mergedData
 }
 
+// StockData 上市股票詳細資料
 func (s *StockDetail) StockData(c *gin.Context) {
 
 	var requestData StockCode
@@ -216,6 +217,7 @@ func (s *StockDetail) StockData(c *gin.Context) {
 	// 返回響應
 }
 
+// StockData2 上櫃股票詳細資料
 func (s *StockDetail) StockData2(c *gin.Context) {
 
 	var requestData StockCode
@@ -284,6 +286,7 @@ func (s *StockDetail) StockData2(c *gin.Context) {
 	// 返回響應
 }
 
+// StockEPS 取得近四次EPS總和
 func StockEPS(value string) string {
 	now := time.Now()
 	oneYearAgo := now.AddDate(-1, -6, 0)
