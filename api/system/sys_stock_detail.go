@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"gland_test/global"
+	"gland_test/model/system"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -33,6 +36,12 @@ type StockCode struct {
 	Code    string `json:"code"`
 	Name    string `json:"name"`
 	PEratio string `json:"peratio"`
+}
+
+type FavoritedStock struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+	Type int    `json:"type"`
 }
 
 type MsgArrayItem struct {
@@ -124,7 +133,7 @@ func (s *StockDetail) StockImformation(c *gin.Context) {
 	}
 
 	merge_data := mergeStructs(stocks, stocks2)
-
+	StockTableData(merge_data)
 	// 將API的結果傳遞到前端
 	c.JSON(http.StatusOK, merge_data)
 }
@@ -144,6 +153,7 @@ func mergeStructs(data1 []StockImformation, data2 []StockImformation2) []StockIm
 			PBratio:       entry.PBratio,
 		}
 		mergedData = append(mergedData, newdata1)
+
 	}
 	return mergedData
 }
@@ -330,4 +340,71 @@ func StockEPS(value string) string {
 	eps_str := fmt.Sprintf("%.3f", eps)
 
 	return eps_str
+}
+
+// StockTableData 新增股票代號和名稱到資料庫
+func StockTableData(merge_data []StockImformation) {
+	db := global.SKW_DB
+	var count int64
+	//檢查是否為空table
+	db.Model(&system.SysStockTable{}).Count(&count)
+	if count == 0 {
+
+		// 將 API 回傳的資料新增到資料庫表格中
+		for _, response := range merge_data {
+			data := system.SysStockTable{
+				StockID:   response.Code,
+				StockName: response.Name,
+			}
+			result := db.Create(&data)
+			if result.Error != nil {
+				log.Println("Failed to insert data:", result.Error)
+			} else {
+				fmt.Println("Data inserted successfully:", data)
+			}
+		}
+	} else {
+		fmt.Println("股票資料已新增至資料庫") //之後可註解
+	}
+}
+
+func (s *StockDetail) Check_Favorited(c *gin.Context) {
+	var requestData FavoritedStock
+	if err := c.ShouldBindJSON(&requestData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db := global.SKW_DB
+	var stockid system.SysMyFavourite
+	db.Where("stock_id = ?", requestData.Code).First(&stockid)
+	if stockid.ID != 0 {
+		if requestData.Type == 0 {
+			c.JSON(http.StatusOK, 1)
+		} else {
+			db.Unscoped().Delete(&stockid) //整個從table砍掉
+			//db.Delete(&stockid)
+			c.JSON(http.StatusOK, 0)
+		}
+		// 找到了，執行刪除操作
+
+	} else {
+		if requestData.Type == 0 {
+			c.JSON(http.StatusOK, 0)
+		} else {
+			// 未找到，新增至資料表
+			data := system.SysMyFavourite{
+				StockID:   requestData.Code,
+				StockName: requestData.Name,
+			}
+			result := db.Create(&data)
+			if result.Error != nil {
+				log.Println("Failed to insert data:", result.Error)
+			} else {
+				fmt.Println("Data inserted successfully:", data)
+			}
+			c.JSON(http.StatusOK, 1)
+		}
+
+	}
 }

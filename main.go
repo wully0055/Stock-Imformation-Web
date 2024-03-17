@@ -36,30 +36,11 @@ func main() {
 
 	if global.SKW_DB != nil {
 		initialize.RegisterTables()
+
 		// 程式结束前關閉資料庫連接
 		db, _ := global.SKW_DB.DB()
 		defer db.Close()
 	}
 	initialize.Routers()
-	//dsn := "root:@tcp(127.0.0.1:3306)/stockweb?charset=utf8mb4&parseTime=True&loc=Local"
-	//db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	//if err != nil {
-	//	log.Fatal(err)
-	//	//return nil
-	//}
-	//// 創建名為 stockweb 的資料庫
-	//err = db.Exec("CREATE DATABASE IF NOT EXISTS stockweb").Error
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//// 重新連接到 stockweb 資料庫
-	//dsn = "root:@tcp(127.0.0.1:3306)/stockweb?charset=utf8mb4&parseTime=True&loc=Local"
-	//db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//fmt.Println("Connected to stockweb database successfully!")
 
 }

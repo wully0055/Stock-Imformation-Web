@@ -92,9 +92,10 @@
         <td id="合理價">
 
     </tr>
-
     </tbody>
 </table>
+<button id="fetchDataBtn">收藏</button>
+
 <script>
     // 從本地存儲中獲取API響應值
     const apiResponseString = localStorage.getItem('apiResponse');
@@ -173,6 +174,61 @@
     } else {
         Percentage.classList.add('green');
     }
+
+    // 當頁面加載完成後觸發的函式
+    window.addEventListener('load', function() {
+        // 發送 AJAX 請求到後端 API 檢查是否已收藏
+        const requestData = {
+            code: apiResponse["股票代號"],
+            name: apiResponse["公司簡稱"],
+            type: 0,
+        };
+        fetch('http://localhost:8080/test/api/check_favorited', {   //預設使用上市API取得股票資料
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                // 根據後端 API 的回應，動態修改按鈕的文字
+                const button = document.getElementById('fetchDataBtn');
+                if (data === 1) {
+                    button.textContent = '已收藏';
+                } else {
+                    button.textContent = '收藏';
+                }
+            })
+            .catch(error => console.error('Error checking if favorited:', error));
+    });
+
+    // 當按鈕被點擊時觸發的函式
+    document.getElementById('fetchDataBtn').addEventListener('click', function() {
+        const requestData = {
+                    code: apiResponse["股票代號"],
+                    name: apiResponse["公司簡稱"],
+                    type: 1,
+                };
+            fetch('http://localhost:8080/test/api/check_favorited', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 根據後端 API 的回應，動態修改按鈕的文字
+                const button = document.getElementById('fetchDataBtn');
+                if (data === 1) {
+                    button.textContent = '已收藏';
+                } else {
+                    button.textContent = '收藏';
+                }
+            })
+            .catch(error => console.error('Error checking if favorited:', error));
+    });
 
 
 

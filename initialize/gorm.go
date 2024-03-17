@@ -16,6 +16,7 @@ func RegisterTables() {
 	db := global.SKW_DB
 	err := db.AutoMigrate(
 		system.SysStockTable{},
+		system.SysMyFavourite{},
 	)
 	if err != nil {
 		os.Exit(0)
