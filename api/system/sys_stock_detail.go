@@ -289,6 +289,7 @@ func (s *StockDetail) StockData2(c *gin.Context) {
 		ValuesMap["最高價"] = item.H
 		ValuesMap["最低價"] = item.L
 		ValuesMap["昨收價"] = item.Y
+		ValuesMap["本益比"] = requestData.PEratio
 		ValuesMap["EPS"] = eps
 		ValuesMap["合理價"] = eps_str
 	}

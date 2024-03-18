@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Table</title>
+    <title id="dynamicTitle">Stock Data</title>
+    <link rel="icon" href="../circlecan.ico" type="image/x-icon">
     <style>
         table {
             border-collapse: collapse;
@@ -64,7 +65,7 @@
     <tr>
         <th>股票代號</th>
         <th>公司簡稱</th>
-        <th>成交價</th>
+        <th>股價</th>
         <th>漲跌幅</th>
         <th>最低價</th>
         <th>最高價</th>
@@ -232,6 +233,8 @@
             .catch(error => console.error('Error checking if favorited:', error));
     });
 
+    // 使用 JavaScript 來更新標題
+    document.getElementById("dynamicTitle").innerText = apiResponse["股票代號"]+" "+apiResponse["公司簡稱"];
 
 
 
