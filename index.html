@@ -6,10 +6,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>股票總覽</title>
     <style>
+        .banner {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .banner h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .banner input[type="text"] {
+            width: 200px;
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+
+        .banner button {
+            padding: 8px 20px; /* 修改此處的 padding，增加右側間距 */
+            background-color: #28a745;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            box-sizing: border-box; /* 添加 box-sizing 屬性 */
+            width: auto; /* 修改此處為自適應內容的寬度 */
+        }
+
+        .banner button:hover {
+            background-color: #218838;
+        }
+
+        .banner a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            margin-right: 55px;
+        }
+
+        /* 調整表格和其他樣式 */
         table {
             border-collapse: collapse;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 70px;
         }
 
         th, td {
@@ -22,6 +76,7 @@
         th {
             background-color: #f2f2f2;
         }
+
         #searchBox {
             margin-top: 10px;
         }
@@ -29,9 +84,15 @@
 </head>
 <body>
 
-<h1>股票總覽</h1>
+
+</div>
+<div class="banner">
+    <input type="text" id="searchBox" placeholder="股票代號或股票名稱" oninput="searchStocks()">
+    <h1>股票總覽</h1>
+    <a href="templates/myfavorited.html">我的收藏</a>
+</div>
 <!-- Search Box -->
-<input type="text" id="searchBox" placeholder="股票代號或股票名稱" oninput="searchStocks()">
+
 
 
 <table id="sortableTable">
@@ -46,6 +107,7 @@
     </thead>
     <tbody id="dataBody"></tbody>
 </table>
+
 
 <script>
     let currentSortColumn = -1;

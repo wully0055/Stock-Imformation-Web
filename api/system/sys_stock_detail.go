@@ -39,9 +39,10 @@ type StockCode struct {
 }
 
 type FavoritedStock struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
-	Type int    `json:"type"`
+	Code    string `json:"code"`
+	Name    string `json:"name"`
+	PEratio string `json:"peratio"`
+	Type    int    `json:"type"`
 }
 
 type MsgArrayItem struct {
@@ -218,6 +219,7 @@ func (s *StockDetail) StockData(c *gin.Context) {
 		ValuesMap["最高價"] = item.H
 		ValuesMap["最低價"] = item.L
 		ValuesMap["昨收價"] = item.Y
+		ValuesMap["本益比"] = requestData.PEratio
 		ValuesMap["EPS"] = eps
 		ValuesMap["合理價"] = eps_str
 	}
@@ -342,7 +344,7 @@ func StockEPS(value string) string {
 	return eps_str
 }
 
-// StockTableData 新增股票代號和名稱到資料庫
+// StockTableData 新增全部股票代號和名稱到資料庫
 func StockTableData(merge_data []StockImformation) {
 	db := global.SKW_DB
 	var count int64
@@ -396,6 +398,7 @@ func (s *StockDetail) Check_Favorited(c *gin.Context) {
 			data := system.SysMyFavourite{
 				StockID:   requestData.Code,
 				StockName: requestData.Name,
+				PEratio:   requestData.PEratio,
 			}
 			result := db.Create(&data)
 			if result.Error != nil {
@@ -407,4 +410,12 @@ func (s *StockDetail) Check_Favorited(c *gin.Context) {
 		}
 
 	}
+}
+
+// MyFavorited 用戶收藏的股票
+func (s *StockDetail) MyFavorited(c *gin.Context) {
+	db := global.SKW_DB
+	var data []system.SysMyFavourite
+	db.Find(&data)
+	c.JSON(http.StatusOK, data)
 }

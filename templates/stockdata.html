@@ -181,6 +181,7 @@
         const requestData = {
             code: apiResponse["股票代號"],
             name: apiResponse["公司簡稱"],
+            peratio: apiResponse["本益比"],
             type: 0,
         };
         fetch('http://localhost:8080/test/api/check_favorited', {   //預設使用上市API取得股票資料
@@ -208,6 +209,7 @@
         const requestData = {
                     code: apiResponse["股票代號"],
                     name: apiResponse["公司簡稱"],
+                    peratio: apiResponse["本益比"],
                     type: 1,
                 };
             fetch('http://localhost:8080/test/api/check_favorited', {
