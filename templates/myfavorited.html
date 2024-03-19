@@ -78,11 +78,12 @@
 
     // 處理表格行點擊事件
     function handleRowClick(stock) {
-        // 构造请求体数据
+        // 請求結構體
         const requestData = {
             code: stock.code,
             name: stock.name,
-            peratio: stock.peratio
+            peratio: stock.peratio,
+            type: stock.type
         };
 
         // 發送後端API請求，使用POST方法
@@ -95,29 +96,29 @@
         })
             .then(response => response.json())
             .then(data => {
-                if (Object.keys(data).length === 0) {  // 若因為上櫃股票導致回傳空值，改使用上櫃API取得股票資料
-                    fetch('http://localhost:8080/test/api/stockdata2', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(requestData)
-                    })
-                        .then(response => response.json())
-                        .then(data2 => {
-                            console.log('API Response:', data2);
-                            localStorage.setItem('apiResponse', JSON.stringify(data2));
-                            window.location.href = 'stockdata.html';
-                            // console.log('API Response:', data2);
-                        })
-                        .catch(error => {
-                            console.error('Error calling the second API:', error);
-                        });
-                } else {
+                // if (Object.keys(data).length === 0) {  // 若因為上櫃股票導致回傳空值，改使用上櫃API取得股票資料
+                //     fetch('http://localhost:8080/test/api/stockdata2', {
+                //         method: 'POST',
+                //         headers: {
+                //             'Content-Type': 'application/json'
+                //         },
+                //         body: JSON.stringify(requestData)
+                //     })
+                //         .then(response => response.json())
+                //         .then(data2 => {
+                //             console.log('API Response:', data2);
+                //             localStorage.setItem('apiResponse', JSON.stringify(data2));
+                //             window.location.href = 'stockdata.html';
+                //             // console.log('API Response:', data2);
+                //         })
+                //         .catch(error => {
+                //             console.error('Error calling the second API:', error);
+                //         });
+                // } else {
                     console.log('API Response:', data);
                     localStorage.setItem('apiResponse', JSON.stringify(data));
                     window.location.href = 'stockdata.html';
-                }
+                // }
             })
             .catch(error => {
                 console.error('Error calling the first API:', error);
