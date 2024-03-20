@@ -169,7 +169,7 @@ func mergeStructs(data1 []StockImformation, data2 []StockImformation2) []StockIm
 	return mergedData
 }
 
-// StockData 上市股票詳細資料
+// StockData 上市櫃股票詳細資料
 func (s *StockDetail) StockData(c *gin.Context) {
 
 	var requestData StockCode
@@ -247,76 +247,6 @@ func (s *StockDetail) StockData(c *gin.Context) {
 	// 返回響應
 }
 
-// StockData2 上櫃股票詳細資料
-//func (s *StockDetail) StockData2(c *gin.Context) {
-//
-//	var requestData StockCode
-//	if err := c.BindJSON(&requestData); err != nil {
-//		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-//		return
-//	}
-//	// 處理 requestData
-//	apiURL2 := "https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=otc_" + requestData.Code + ".tw"
-//
-//	resp, err := http.Get(apiURL2)
-//	if err != nil {
-//		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch external API"})
-//		return
-//	}
-//	defer resp.Body.Close()
-//
-//	// 解析API的JSON響應
-//	var apiResponse APIResponse
-//
-//	// 僅解碼 JSON 數據中的 msgArray 字段
-//	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
-//		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse external API response"})
-//		return
-//	}
-//
-//	eps := StockEPS(requestData.Code)
-//
-//	floateps, err := strconv.ParseFloat(eps, 64)
-//	if err != nil {
-//		fmt.Println("eps轉換float失敗:", err)
-//		return
-//	}
-//	//若沒有本益比資料，本益比設為 0
-//	var stockPEratio string
-//	stockPEratio = requestData.PEratio
-//	if stockPEratio == "" || stockPEratio == "N/A" {
-//		stockPEratio = "0"
-//	}
-//
-//	floatPEratio, err := strconv.ParseFloat(stockPEratio, 64)
-//	if err != nil {
-//		fmt.Println("本益比轉換float失敗:", err)
-//		return
-//	}
-//	price := floateps * floatPEratio
-//	eps_str := fmt.Sprintf("%.3f", price)
-//
-//	ValuesMap := make(map[string]string)
-//	for _, item := range apiResponse.MsgArray {
-//		ValuesMap["股票代號"] = item.C
-//		ValuesMap["公司簡稱"] = item.N
-//		ValuesMap["成交價"] = item.Z
-//		ValuesMap["成交量"] = item.Tv
-//		ValuesMap["累積成交量"] = item.V
-//		ValuesMap["開盤價"] = item.O
-//		ValuesMap["最高價"] = item.H
-//		ValuesMap["最低價"] = item.L
-//		ValuesMap["昨收價"] = item.Y
-//		ValuesMap["EPS"] = eps
-//		ValuesMap["合理價"] = eps_str
-//		ValuesMap["類型"] = "上櫃"
-//	}
-//
-//	c.JSON(http.StatusOK, ValuesMap)
-//
-//	// 返回響應
-//}
-
 // StockEPS 取得近四次EPS總和
 func StockEPS(value string) string {
 	now := time.Now()
@@ -361,6 +291,43 @@ func StockEPS(value string) string {
 	eps_str := fmt.Sprintf("%.3f", eps)
 
 	return eps_str
+}
+
+func fetchStockData(requestData system.SysStockTable) (map[string]string, error) {
+	var apiURL string
+
+	if requestData.Type == "上市" {
+		apiURL = "https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_" + requestData.StockID + ".tw"
+	} else {
+		apiURL = "https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=otc_" + requestData.StockID + ".tw"
+	}
+
+	resp, err := http.Get(apiURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch external API: %v", err)
+	}
+	defer resp.Body.Close()
+
+	var apiResponse APIResponse
+	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
+		return nil, fmt.Errorf("failed to parse external API response: %v", err)
+	}
+
+	ValuesMap := make(map[string]string)
+	for _, item := range apiResponse.MsgArray {
+		ValuesMap["股票代號"] = item.C
+		ValuesMap["公司簡稱"] = item.N
+		ValuesMap["成交價"] = item.Z
+		ValuesMap["成交量"] = item.Tv
+		ValuesMap["累積成交量"] = item.V
+		ValuesMap["開盤價"] = item.O
+		ValuesMap["最高價"] = item.H
+		ValuesMap["最低價"] = item.L
+		ValuesMap["昨收價"] = item.Y
+		ValuesMap["類型"] = "上市"
+	}
+
+	return ValuesMap, nil
 }
 
 // StockTableData 新增全部股票代號和名稱到資料庫
@@ -437,7 +404,7 @@ func (s *StockDetail) MyFavorited(c *gin.Context) {
 	db := global.SKW_DB
 	var data []system.SysMyFavourite
 	db.Find(&data)
-	var result []map[string]interface{}
+	var result []map[string]string
 
 	for _, favorite := range data {
 		var stock system.SysStockTable
@@ -445,13 +412,19 @@ func (s *StockDetail) MyFavorited(c *gin.Context) {
 			// 處理錯誤
 			continue
 		}
-
+		stockData, err := fetchStockData(stock)
+		if err != nil {
+			// 處理錯誤
+			continue
+		}
 		// 將兩個結構體的欄位合併成一個 map
-		item := map[string]interface{}{
-			"code":    stock.StockID,
-			"name":    stock.StockName,
-			"peratio": favorite.PEratio,
-			"type":    stock.Type,
+		item := map[string]string{
+			"code":           stock.StockID,
+			"name":           stock.StockName,
+			"peratio":        favorite.PEratio,
+			"type":           stock.Type,
+			"yesterdayprice": stockData["昨收價"],
+			"todayprice":     stockData["成交價"],
 		}
 		result = append(result, item)
 	}
