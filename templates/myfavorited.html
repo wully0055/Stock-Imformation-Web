@@ -73,28 +73,38 @@
             data.forEach(stock => {
                 const row = document.createElement('tr');
                 const priceChange = stock.todayprice - stock.yesterdayprice;
-                const priceChangePercentage = priceChange / stock.yesterdayprice * 100;
-                // const priceChangePercentage = roundToNearestFive(stock.yesterdayprice);
+                // const priceChangePercentage = priceChange / stock.yesterdayprice * 100;
+                const priceChangePercentage = roundToNearestFive(stock.yesterdayprice);
 
 
                 // 根據價格變化來設置文字顏色
                 let priceColor = '';
-                if (priceChange > 0) {
-                    priceColor = 'red'; // 價格上漲，文字顏色設置為紅色
-                } else if (priceChange < 0) {
-                    priceColor = 'green'; // 價格下跌，文字顏色設置為綠色
-                } else {
-                    priceColor = ''; // 價格不變，保持原樣式
-                }
                 let todayColor = '';
-                if (priceChange.toFixed(2) === (roundToNearestFive(stock.yesterdayprice)/10).toFixed(2)) {
-                    todayColor = 'white'; // 文字顏色設置為白色
-                    row.style.backgroundColor = 'red'; // 背景色設置為紅色
+                if (priceChange > 0) {
 
-                } else if (priceChange.toFixed(2) === (roundToNearestFive(stock.yesterdayprice)/-10).toFixed(2)) {
-                    todayColor = 'white'; // 文字顏色設置為白色
-                    row.style.backgroundColor = 'green'; // 背景色設置為綠色
+                    if(priceChange.toFixed(2) === (roundToNearestFive(stock.yesterdayprice)/10).toFixed(2)) {
+                        todayColor = 'white'; // 文字顏色設置為白色
+                        row.style.backgroundColor = 'red'; // 背景色設置為紅色
+                        priceColor = 'red';
+                    }else{
+                        todayColor = 'red';
+                        priceColor = 'red'; // 價格上漲，文字顏色設置為紅色
+                    }
 
+                } else if (priceChange < 0) {
+
+                    if (priceChange.toFixed(2) === (roundToNearestFive(stock.yesterdayprice)/-10).toFixed(2)) {
+                        todayColor = 'white'; // 文字顏色設置為白色
+                        row.style.backgroundColor = 'green'; // 背景色設置為綠色
+                        priceColor = 'green';
+                    }else{
+                        todayColor = 'green';
+                        priceColor = 'green'; // 價格下跌，文字顏色設置為綠色
+                    }
+
+                } else {
+                    todayColor = '';
+                    priceColor = ''; // 價格不變，保持原樣式
                 }
 
                 row.innerHTML = `
@@ -115,24 +125,34 @@
     function roundToNearestFive(value) {
         // 如果數字小於100，直接捨去小數點後第二位
         if (value < 100 && value >= 10) {
-            return Math.floor(value);
-        }
-        if (value < 10) {
+            // return Math.floor(value);
+            // 取得小數點後的第一位數字
+            var digitAfterDecimal = parseInt(value.toString().charAt(value.toString().indexOf(".") + 1));
+
+            // 如果小於5，將其設置為0；如果大於等於5，將其設置為5
+            if (digitAfterDecimal < 5) {
+                value = Math.floor(value); // 去除小数部分
+            } else {
+                value = Math.floor(value) + 0.5; // 加上0.5
+            }
+
+            return value;
+
+        }else if (value < 10) {
+
             // 如果數字小於100，直接捨去小數點後第二位
             var intValue = Math.floor(value); // 取整數部分
             var decimalPart = value - intValue; // 小數部分
             var truncatedDecimalPart = Math.floor(decimalPart * 10) / 10; // 捨去小數點後第二位
             return intValue + truncatedDecimalPart;
+
+        }else if(value > 100) {
+            // 取得小數點前的個位數字
+            var digitBeforeDecimal = parseInt(value.toString().charAt(1));
+
+            // 如果小於5，返回整數部分；如果大於等於5，返回整數部分並將個位數設置為5
+            return (digitBeforeDecimal < 5) ? Math.floor(value / 10) * 10 : Math.floor(value / 10) * 10 + 5;
         }
-
-        // 取得小數點前的個位數字
-        var digitBeforeDecimal = parseInt(value.toString().charAt(0));
-
-        // 如果小於5，返回整數部分；如果大於等於5，返回整數部分並將個位數設置為5
-        return (digitBeforeDecimal < 5) ? Math.floor(value / 10) * 10 : Math.floor(value / 10) * 10 + 5;
-
-        // 返回結果
-        // return Math.floor(value * 10) / 10 + newSecondDecimalDigit / 100;
     }
 
 
