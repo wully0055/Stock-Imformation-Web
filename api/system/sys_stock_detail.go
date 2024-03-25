@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gland_test/global"
+	"gland_test/model/common/request"
+	"gland_test/model/common/response"
 	"gland_test/model/system"
 	"log"
 	"net/http"
@@ -13,94 +15,6 @@ import (
 )
 
 type StockDetail struct{}
-
-type StockImformation struct {
-	Code          string `json:"Code"`
-	Name          string `json:"Name"`
-	PEratio       string `json:"PEratio"`
-	DividendYield string `json:"DividendYield"`
-	PBratio       string `json:"PBratio"`
-	Type          string `json:"type"`
-}
-
-type StockImformation2 struct {
-	Code          string `json:"SecuritiesCompanyCode"`
-	Name          string `json:"CompanyName"`
-	PEratio       string `json:"PriceEarningRatio"`
-	DividendYield string `json:"YieldRatio"`
-	PBratio       string `json:"PriceBookRatio"`
-	Type          string `json:"type"`
-}
-
-type StockCode struct {
-	Code    string `json:"code"`
-	Name    string `json:"name"`
-	PEratio string `json:"peratio"`
-	Type    string `json:"type"`
-}
-
-type FavoritedStock struct {
-	Code    string `json:"code"`
-	Name    string `json:"name"`
-	PEratio string `json:"peratio"`
-	Type    int    `json:"type"`
-}
-
-type MsgArrayItem struct {
-	Tv    string `json:"tv"`
-	Ps    string `json:"ps"`
-	Pz    string `json:"pz"`
-	Bp    string `json:"bp"`
-	Fv    string `json:"fv"`
-	Oa    string `json:"oa"`
-	Ob    string `json:"ob"`
-	A     string `json:"a"`
-	B     string `json:"b"`
-	C     string `json:"c"`
-	D     string `json:"d"`
-	Ch    string `json:"ch"`
-	Ot    string `json:"ot"`
-	Tlong string `json:"tlong"`
-	F     string `json:"f"`
-	Ip    string `json:"ip"`
-	G     string `json:"g"`
-	Mt    string `json:"mt"`
-	Ov    string `json:"ov"`
-	H     string `json:"h"`
-	I     string `json:"i"`
-	It    string `json:"it"`
-	Oz    string `json:"oz"`
-	L     string `json:"l"`
-	N     string `json:"n"`
-	O     string `json:"o"`
-	P     string `json:"p"`
-	Ex    string `json:"ex"`
-	S     string `json:"s"`
-	T     string `json:"t"`
-	U     string `json:"u"`
-	V     string `json:"v"`
-	W     string `json:"w"`
-	Nf    string `json:"nf"`
-	Y     string `json:"y"`
-	Z     string `json:"z"`
-	Ts    string `json:"ts"`
-}
-
-type APIResponse struct {
-	MsgArray []MsgArrayItem `json:"msgArray"`
-}
-
-type Epsdata struct {
-	Data []FinancialEntry `json:"data"`
-}
-
-type FinancialEntry struct {
-	Date       string  `json:"date"`
-	StockID    string  `json:"stock_id"`
-	Type       string  `json:"type"`
-	Value      float64 `json:"value"`
-	OriginName string  `json:"origin_name"`
-}
 
 func (s *StockDetail) StockImformation(c *gin.Context) {
 	//上市資料
@@ -113,7 +27,7 @@ func (s *StockDetail) StockImformation(c *gin.Context) {
 	defer resp.Body.Close()
 
 	// 解析API的JSON響應
-	var stocks []StockImformation
+	var stocks []request.StockImformation
 	if err := json.NewDecoder(resp.Body).Decode(&stocks); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse external API response"})
 		return
@@ -132,7 +46,7 @@ func (s *StockDetail) StockImformation(c *gin.Context) {
 	defer resp2.Body.Close()
 
 	// 解析API的JSON響應
-	var stocks2 []StockImformation2
+	var stocks2 []request.StockImformation2
 	if err := json.NewDecoder(resp2.Body).Decode(&stocks2); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse external API response"})
 		return
@@ -149,13 +63,13 @@ func (s *StockDetail) StockImformation(c *gin.Context) {
 }
 
 // 合併上市櫃股票資料
-func mergeStructs(data1 []StockImformation, data2 []StockImformation2) []StockImformation {
-	var mergedData []StockImformation
+func mergeStructs(data1 []request.StockImformation, data2 []request.StockImformation2) []request.StockImformation {
+	var mergedData []request.StockImformation
 	mergedData = append(mergedData, data1...)
 
 	for _, entry := range data2 {
 
-		newdata1 := StockImformation{
+		newdata1 := request.StockImformation{
 			Code:          entry.Code,
 			Name:          entry.Name,
 			PEratio:       entry.PEratio,
@@ -172,7 +86,7 @@ func mergeStructs(data1 []StockImformation, data2 []StockImformation2) []StockIm
 // StockData 上市櫃股票詳細資料
 func (s *StockDetail) StockData(c *gin.Context) {
 
-	var requestData StockCode
+	var requestData request.StockCode
 	if err := c.BindJSON(&requestData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -195,7 +109,7 @@ func (s *StockDetail) StockData(c *gin.Context) {
 	defer resp.Body.Close()
 
 	// 解析API的JSON響應
-	var apiResponse APIResponse
+	var apiResponse response.StockMsg
 
 	// 僅解碼 JSON 數據中的 msgArray 字段
 	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
@@ -258,27 +172,21 @@ func StockEPS(value string) string {
 	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRlIjoiMjAyNC0wMy0wOSAyMTo0MTowNyIsInVzZXJfaWQiOiJ3aWxseTAwNTUiLCJpcCI6IjEyMi4xMTcuMTgwLjE1OSJ9.HkU9BX9aUbyQ66zPPzgrkp0wz98g9HwymeUOYPUYPi4"
 
 	apiURL := "https://api.finmindtrade.com/api/v4/data?dataset=" + dataset + "&data_id=" + data_id + "&start_date=" + start_date + "&token=" + token + ""
-	response, err := http.Get(apiURL)
+	respond, err := http.Get(apiURL)
 	if err != nil {
 		return ""
 	}
-	defer response.Body.Close()
+	defer respond.Body.Close()
 
-	var epsResponse Epsdata
-	err = json.NewDecoder(response.Body).Decode(&epsResponse)
+	var epsResponse response.Epsdata
+	err = json.NewDecoder(respond.Body).Decode(&epsResponse)
 	if err != nil {
 		return ""
 	}
 
-	//return epsResponse.Data, nil
 	var eps float64
 	count := 0
-	//for _, entry := range epsResponse.Data {
-	//	if entry.Type == "EPS" {
-	//		eps += entry.Value
-	//		//filteredData = append(filteredData, entry)
-	//	}
-	//}
+
 	//改為反向迴圈, 取最近 ４ 筆 EPS
 	for i := len(epsResponse.Data) - 1; i >= 0; i-- {
 		entry := epsResponse.Data[i]
@@ -308,7 +216,7 @@ func fetchStockData(requestData system.SysStockTable) (map[string]string, error)
 	}
 	defer resp.Body.Close()
 
-	var apiResponse APIResponse
+	var apiResponse response.StockMsg
 	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
 		return nil, fmt.Errorf("failed to parse external API response: %v", err)
 	}
@@ -331,7 +239,7 @@ func fetchStockData(requestData system.SysStockTable) (map[string]string, error)
 }
 
 // StockTableData 新增全部股票代號和名稱到資料庫
-func StockTableData(merge_data []StockImformation) {
+func StockTableData(merge_data []request.StockImformation) {
 	db := global.SKW_DB
 	var count int64
 	//檢查是否為空table
@@ -358,7 +266,7 @@ func StockTableData(merge_data []StockImformation) {
 }
 
 func (s *StockDetail) Check_Favorited(c *gin.Context) {
-	var requestData FavoritedStock
+	var requestData request.FavoritedStock
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
