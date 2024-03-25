@@ -137,10 +137,10 @@
         }
     }
     EndPrice.classList.add('bold');
-    if(changePercentage >= 10.00){
+    if((apiResponse["成交價"] - apiResponse["昨收價"]).toFixed(2) === (roundToNearestFive(apiResponse["昨收價"])/10).toFixed(2)){
         EndPrice.classList.add('background_red');
         EndPrice.classList.add('white');
-    }else if(changePercentage <= -10.00){
+    }else if((apiResponse["成交價"] - apiResponse["昨收價"]).toFixed(2) === (roundToNearestFive(apiResponse["昨收價"])/-10).toFixed(2)){
         EndPrice.classList.add('background_green');
         EndPrice.classList.add('white');
     }else{
@@ -235,6 +235,39 @@
 
     // 使用 JavaScript 來更新標題
     document.getElementById("dynamicTitle").innerText = apiResponse["股票代號"]+" "+apiResponse["公司簡稱"];
+
+    function roundToNearestFive(value) {
+        // 如果數字小於100，直接捨去小數點後第二位
+        if (value < 100 && value >= 10) {
+            // return Math.floor(value);
+            // 取得小數點後的第一位數字
+            var digitAfterDecimal = parseInt(value.toString().charAt(value.toString().indexOf(".") + 1));
+
+            // 如果小於5，將其設置為0；如果大於等於5，將其設置為5
+            if (digitAfterDecimal < 5) {
+                value = Math.floor(value); // 去除小数部分
+            } else {
+                value = Math.floor(value) + 0.5; // 加上0.5
+            }
+
+            return value;
+
+        }else if (value < 10) {
+
+            // 如果數字小於100，直接捨去小數點後第二位
+            var intValue = Math.floor(value); // 取整數部分
+            var decimalPart = value - intValue; // 小數部分
+            var truncatedDecimalPart = Math.floor(decimalPart * 10) / 10; // 捨去小數點後第二位
+            return intValue + truncatedDecimalPart;
+
+        }else if(value > 100) {
+            // 取得小數點前的個位數字
+            var digitBeforeDecimal = parseInt(value.toString().charAt(1));
+
+            // 如果小於5，返回整數部分；如果大於等於5，返回整數部分並將個位數設置為5
+            return (digitBeforeDecimal < 5) ? Math.floor(value / 10) * 10 : Math.floor(value / 10) * 10 + 5;
+        }
+    }
 
 
 
