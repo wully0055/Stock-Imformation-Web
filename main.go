@@ -1,8 +1,8 @@
 package main
 
 import (
-	"gland_test/global"
-	"gland_test/initialize"
+	"Stock-Imformation-Web/global"
+	"Stock-Imformation-Web/initialize"
 )
 
 func main() {

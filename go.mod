@@ -1,4 +1,4 @@
-module gland_test
+module Stock-Imformation-Web
 
 go 1.21
 

@@ -1,6 +1,6 @@
 package api
 
-import "gland_test/api/system"
+import "Stock-Imformation-Web/api/system"
 
 type ApiGroup struct {
 	SystemApiGroup system.ApiGroup

@@ -1,7 +1,7 @@
 package system
 
 import (
-	"gland_test/global"
+	"Stock-Imformation-Web/global"
 )
 
 type SysMyFavourite struct {

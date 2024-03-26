@@ -1,13 +1,13 @@
 package system
 
 import (
+	"Stock-Imformation-Web/global"
+	"Stock-Imformation-Web/model/common/request"
+	"Stock-Imformation-Web/model/common/response"
+	"Stock-Imformation-Web/model/system"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"gland_test/global"
-	"gland_test/model/common/request"
-	"gland_test/model/common/response"
-	"gland_test/model/system"
 	"log"
 	"net/http"
 	"strconv"

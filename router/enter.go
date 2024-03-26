@@ -1,6 +1,6 @@
 package router
 
-import "gland_test/router/system"
+import "Stock-Imformation-Web/router/system"
 
 type RouterGroup struct {
 	System system.RouterGroup

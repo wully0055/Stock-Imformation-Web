@@ -1,8 +1,8 @@
 package system
 
 import (
+	"Stock-Imformation-Web/api"
 	"github.com/gin-gonic/gin"
-	"gland_test/api"
 )
 
 type DetailRouter struct{}

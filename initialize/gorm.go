@@ -1,8 +1,8 @@
 package initialize
 
 import (
-	"gland_test/global"
-	"gland_test/model/system"
+	"Stock-Imformation-Web/global"
+	"Stock-Imformation-Web/model/system"
 	"gorm.io/gorm"
 	"os"
 )

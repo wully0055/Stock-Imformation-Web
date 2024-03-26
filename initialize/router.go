@@ -1,9 +1,9 @@
 package initialize
 
 import (
+	"Stock-Imformation-Web/router"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"gland_test/router"
 )
 
 func Routers() *gin.Engine {
