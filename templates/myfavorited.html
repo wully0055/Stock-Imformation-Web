@@ -73,8 +73,8 @@
             data.forEach(stock => {
                 const row = document.createElement('tr');
                 const priceChange = stock.todayprice - stock.yesterdayprice;
-                const priceChangePercentage = priceChange / stock.yesterdayprice * 100;
-                // const priceChangePercentage = roundToNearestFive(stock.yesterdayprice);
+                // const priceChangePercentage = priceChange / stock.yesterdayprice * 100;
+                const priceChangePercentage = roundToNearestFive(stock.yesterdayprice);
 
 
                 // 根據價格變化來設置文字顏色
@@ -146,12 +146,27 @@
             var truncatedDecimalPart = Math.floor(decimalPart * 10) / 10; // 捨去小數點後第二位
             return intValue + truncatedDecimalPart;
 
-        }else if(value > 100) {
+        }else if(value < 1000 && value >= 100) {
             // 取得小數點前的個位數字
-            var digitBeforeDecimal = parseInt(value.toString().charAt(1));
+            var digitBeforeDecimal = parseInt(value.toString().charAt(2));
 
             // 如果小於5，返回整數部分；如果大於等於5，返回整數部分並將個位數設置為5
             return (digitBeforeDecimal < 5) ? Math.floor(value / 10) * 10 : Math.floor(value / 10) * 10 + 5;
+        }else if(value >= 1000) {
+            // 將數字除以10並無條件捨去小數部分
+            var newValue = Math.floor(value / 10);
+
+            // 取得個位數字
+            var digit = newValue % 10;
+
+            // 如果個位數大於等於5，將其設置為0，否則設置為5
+            if (digit >= 5) {
+                newValue = newValue - digit + 5;
+            } else {
+                newValue = newValue - digit;
+            }
+
+            return newValue * 10;
         }
     }
 

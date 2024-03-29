@@ -33,6 +33,7 @@ func Routers() *gin.Engine {
 
 	// 在此之前打開瀏覽器
 	openBrowser("http://localhost:8080")
+	//Router.SetTrustedProxies("192.168.1.1/24")
 
 	Router.Run(":8080")
 
