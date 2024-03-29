@@ -73,8 +73,8 @@
             data.forEach(stock => {
                 const row = document.createElement('tr');
                 const priceChange = stock.todayprice - stock.yesterdayprice;
-                // const priceChangePercentage = priceChange / stock.yesterdayprice * 100;
-                const priceChangePercentage = roundToNearestFive(stock.yesterdayprice);
+                const priceChangePercentage = priceChange / stock.yesterdayprice * 100;
+                // const priceChangePercentage = roundToNearestFive(stock.yesterdayprice);
 
 
                 // 根據價格變化來設置文字顏色
