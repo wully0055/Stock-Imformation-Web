@@ -10,12 +10,14 @@ type DetailRouter struct{}
 func (e *DetailRouter) InitApiRouter(Router *gin.RouterGroup) {
 	apiRouter := Router.Group("/api")
 
-	apiRouterApi := api.ApiGroupApp.SystemApiGroup.StockDetail
+	apiStockDetailApi := api.ApiGroupApp.SystemApiGroup.StockDetail
 	{
-		apiRouter.GET("stockimformation", apiRouterApi.StockImformation)
-		apiRouter.POST("stockdata", apiRouterApi.StockData) //上市個股日本益比、殖利率及股價淨值比
-		//apiRouter.POST("stockdata2", apiRouterApi.StockData2)           //上櫃個股日本益比、殖利率及股價淨值比
-		apiRouter.POST("check_favorited", apiRouterApi.Check_Favorited) //(檢查)收藏股票
-		apiRouter.GET("myfavorited", apiRouterApi.MyFavorited)          //用戶收藏的股票
+		apiRouter.GET("stockimformation", apiStockDetailApi.StockImformation)
+		apiRouter.POST("stockdata", apiStockDetailApi.StockData) //上市個股日本益比、殖利率及股價淨值比
+	}
+	apiStockFavoriteApi := api.ApiGroupApp.SystemApiGroup.StockFavorite
+	{
+		apiRouter.POST("check_favorited", apiStockFavoriteApi.Check_Favorited) //(檢查)收藏股票
+		apiRouter.GET("myfavorited", apiStockFavoriteApi.MyFavorited)          //用戶收藏的股票
 	}
 }
