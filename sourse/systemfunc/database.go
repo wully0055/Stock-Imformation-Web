@@ -6,6 +6,7 @@ import (
 	"Stock-Imformation-Web/model/system"
 	"fmt"
 	"log"
+	"time"
 )
 
 // StockTableData 新增全部股票代號和名稱到資料庫
@@ -31,6 +32,11 @@ func StockTableData(merge_data []request.StockImformation) {
 			}
 		}
 	} else {
-		fmt.Println("股票資料已新增至資料庫") //之後可註解
+		//message := "股票資料已新增至資料庫"
+		message := "股票資料首頁已更新"
+		currentTime := time.Now()
+		currentTimeString := currentTime.Format("2006-01-02 15:04:05")
+		messageWithTime := fmt.Sprintf("%s %s", message, currentTimeString)
+		fmt.Println(messageWithTime)
 	}
 }

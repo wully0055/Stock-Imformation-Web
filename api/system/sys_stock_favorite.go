@@ -24,19 +24,19 @@ func (s *StockFavorite) Check_Favorited(c *gin.Context) {
 	var stockid system.SysMyFavourite
 	db.Where("stock_id = ?", requestData.Code).First(&stockid)
 	if stockid.ID != 0 {
-		if requestData.Type == 0 {
+		if requestData.Type == 0 { //若只是載入網頁時的檢查
 			c.JSON(http.StatusOK, 1)
-		} else {
+		} else { //若是按了按鈕觸發的
 			db.Unscoped().Delete(&stockid) //整個從table砍掉
-			//db.Delete(&stockid)
+			//db.Delete(&stockid) 軟刪除
 			c.JSON(http.StatusOK, 0)
 		}
 		// 找到了，執行刪除操作
 
 	} else {
-		if requestData.Type == 0 {
+		if requestData.Type == 0 { //若只是載入網頁時的檢查
 			c.JSON(http.StatusOK, 0)
-		} else {
+		} else { //若是按了按鈕觸發的
 			// 未找到，新增至資料表
 			data := system.SysMyFavourite{
 				StockID:   requestData.Code,
