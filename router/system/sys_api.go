@@ -12,8 +12,8 @@ func (e *DetailRouter) InitApiRouter(Router *gin.RouterGroup) {
 
 	apiStockDetailApi := api.ApiGroupApp.SystemApiGroup.StockDetail
 	{
-		apiRouter.GET("stockimformation", apiStockDetailApi.StockImformation)
-		apiRouter.POST("stockdata", apiStockDetailApi.StockData) //上市個股日本益比、殖利率及股價淨值比
+		apiRouter.GET("stockimformation", apiStockDetailApi.StockImformation) //首頁資訊
+		apiRouter.POST("stockdata", apiStockDetailApi.StockData)              //上市個股日本益比、殖利率及股價淨值比
 	}
 	apiStockFavoriteApi := api.ApiGroupApp.SystemApiGroup.StockFavorite
 	{

@@ -9,11 +9,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"sync"
 )
 
-type StockFavorite struct{}
+type StockFavorite struct {
+	mutex sync.Mutex
+}
 
 func (s *StockFavorite) Check_Favorited(c *gin.Context) {
+	// 鎖定互斥鎖
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	var requestData request.FavoritedStock
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
